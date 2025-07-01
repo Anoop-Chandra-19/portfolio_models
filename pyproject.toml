@@ -7,8 +7,11 @@ requires-python = ">=3.11"
 dependencies = [
     "datasets>=3.6.0",
     "evaluate>=0.4.4",
+    "gsutil>=5.35",
+    "opencv-python>=4.11.0.86",
     "pandas>=2.3.0",
     "scikit-learn>=1.7.0",
     "torch>=2.7.1",
+    "tqdm>=4.67.1",
     "transformers[torch]>=4.53.0",
 ]
