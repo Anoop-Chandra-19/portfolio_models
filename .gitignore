@@ -11,3 +11,9 @@ wheels/
 
 # models
 outputs/
+
+# data
+sentiment/data/IMDB Dataset.csv
+sentiment/data/train.csv
+sentiment/data/val.csv
+sentiment/data/test.csv
