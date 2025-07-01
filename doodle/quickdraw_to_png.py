@@ -6,12 +6,11 @@ from tqdm import tqdm
 
 # --------- CONFIG ---------
 CLASSES = [
-    "apple", "airplane", "book", "bicycle", "banana",
-    "aircraft carrier", "alarm clock", "ambulance", "angel", "animal migration",
-    "ant", "anvil", "arm", "asparagus", "axe", "backpack", "bandage", "barn",
-    "baseball", "baseball bat", "basket", "basketball", "bat", "bathtub",
-    "beach", "bear", "bed", "bee", "belt", "bench", "binoculars",
-    "bird", "birthday cake", "blackberry", "blueberry", "boomerang", "bottlecap",
+    "aircraft carrier","airplane","alarm clock","ambulance", "angel", "animal migration",
+    "ant", "anvil", "apple", "arm", "asparagus", "axe", "backpack", "banana", "bandage", 
+    "barn", "baseball", "baseball bat", "basket", "basketball", "bat", "bathtub",
+    "beach", "bear", "beard", "bed", "bee", "belt", "bench", "bicycle", "binoculars",
+    "bird", "birthday cake", "blackberry", "blueberry", "book", "boomerang", "bottlecap",
     "bowtie", "bracelet", "brain", "bread", "bridge", "broccoli", "broom",
     "bucket", "bulldozer", "The Eiffel Tower", "The Great Wall of China", "The Mona Lisa"
 ]
