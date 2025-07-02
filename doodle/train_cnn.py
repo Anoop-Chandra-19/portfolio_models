@@ -5,13 +5,13 @@ os.environ["LD_LIBRARY_PATH"] = "/usr/local/cuda/lib64:" + os.environ.get("LD_LI
 import shutil
 import tensorflow as tf
 from tensorflow.keras.utils import image_dataset_from_directory # type: ignore
-from tensorflow.keras import layers, models # type: ignore
+from tensorflow.keras import layers, Sequential # type: ignore
 
 # ---- CONFIG ----
 DATA_DIR = "doodle/data/split"
 IMG_SIZE = 28
-BATCH_SIZE = 64
-EPOCHS = 12
+BATCH_SIZE = 32
+EPOCHS = 24
 KERAS_OUT = "outputs/doodle/doodle_cnn_model.keras"
 SAVEDMODEL_DIR = "outputs/doodle/saved_model"
 
@@ -53,20 +53,43 @@ NUM_CLASSES = len(class_names)
 print(f"Loaded {NUM_CLASSES} classes: {class_names}")
 
 # ---- MODEL ----
-def build_lenet(num_classes):
-    model = models.Sequential([
-        layers.Input(shape=(IMG_SIZE, IMG_SIZE, 1)),
-        layers.Conv2D(32, (3, 3), activation='relu'),
+def build_improved_cnn(num_classes, img_size=28):
+    model = Sequential([
+        layers.Input(shape=(img_size, img_size, 1)),
+
+        # Data Augmentation (for grayscale, only small shifts/rotations)
+        layers.Rescaling(1./255),
+        layers.RandomRotation(0.08),
+        layers.RandomTranslation(0.08, 0.08),
+        layers.RandomZoom(0.08, 0.08),
+
+        # First block
+        layers.Conv2D(32, (3, 3), padding="same", activation="relu"),
+        layers.BatchNormalization(),
+        layers.Conv2D(32, (3, 3), activation="relu"),
+        layers.BatchNormalization(),
         layers.MaxPooling2D((2, 2)),
-        layers.Conv2D(64, (3, 3), activation='relu'),
+        layers.Dropout(0.25),
+
+        # Second block
+        layers.Conv2D(64, (3, 3), padding="same", activation="relu"),
+        layers.BatchNormalization(),
+        layers.Conv2D(64, (3, 3), activation="relu"),
+        layers.BatchNormalization(),
         layers.MaxPooling2D((2, 2)),
+        layers.Dropout(0.25),
+
+        # Flatten and dense layers
         layers.Flatten(),
-        layers.Dense(128, activation='relu'),
-        layers.Dense(num_classes, activation='softmax')
+        layers.Dense(256, activation="relu"),
+        layers.BatchNormalization(),
+        layers.Dropout(0.5),
+
+        layers.Dense(num_classes, activation="softmax"),
     ])
     return model
 
-model = build_lenet(NUM_CLASSES)
+model = build_improved_cnn(NUM_CLASSES)
 model.compile(optimizer='adam',
               loss='categorical_crossentropy',
               metrics=['accuracy'])
