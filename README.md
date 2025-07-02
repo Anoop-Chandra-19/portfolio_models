@@ -43,25 +43,42 @@ outputs/           # Exported models and checkpoints
    ```
 
 3. **Train models:**
-   - Sentiment: See [`sentiment/train_tinybert.py`](sentiment/train_tinybert.py)
+   - Sentiment: See [`sentiment/train_lstm_sentiment.py`](sentiment/train_lstm_sentiment.py)
    - Doodle: See [`doodle/train_cnn.py`](doodle/train_cnn.py)
 
 4. **Export models for web:**
-   - Use script in `utils/convert_to_tfjs.py` as needed.
+   - Use script in [`utils/convert_to_tfjs.py`](utils/convert_to_tfjs.py) as needed.
+
+---
+
+## 🧩 Scripts Overview
+
+### Doodle Scripts (`doodle/`)
+- [`quickdraw_to_png.py`](doodle/quickdraw_to_png.py): Converts QuickDraw `.ndjson` files to PNG images for training.
+- [`split_png_dataset.py`](doodle/split_png_dataset.py): Splits the PNG dataset into training, validation, and test sets.
+- [`train_cnn.py`](doodle/train_cnn.py): Trains the CNN model for doodle classification.
+
+### Sentiment Scripts (`sentiment/`)
+- [`prep_imdb_data.py`](sentiment/prep_imdb_data.py): Prepares and splits the IMDB dataset for sentiment analysis.
+- [`train_lstm_sentiment.py`](sentiment/train_lstm_sentiment.py): Trains an LSTM-based sentiment analysis model.
+
+### Utility Scripts (`utils/`)
+- [`convert_to_tfjs.py`](utils/convert_to_tfjs.py): Converts trained models to TensorFlow.js format for web deployment.
+- [`preprocess_doodle.py`](utils/preprocess_doodle.py): Preprocessing utilities for doodle data.
 
 ---
 
 ## 🌐 Web Integration
 
-- Models are exported in web-friendly formats (e.g., TensorFlow.js, ONNX, or custom JS).
+- Models are exported in web-friendly formats (TensorFlow.js).
 - Each model is integrated into a card on the portfolio website for live demo and interaction.
 
 ---
 
 ## 📊 Performance
 
-- **Sentiment Analysis:** [87.4]
-- **Doodle Classification:** [Add accuracy here]
+- **Sentiment Analysis:** [80%] for 2 divisional classes
+- **Doodle Classification:** [63%] for 50 divisional classes
 
 ---
 
@@ -73,4 +90,4 @@ MIT License
 
 ## 🙋‍♂️ Author
 
-Anoop  
+Anoop
