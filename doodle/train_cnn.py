@@ -1,0 +1,113 @@
+import os
+import json
+os.environ["PATH"] = "/usr/local/cuda/bin:" + os.environ["PATH"]
+os.environ["LD_LIBRARY_PATH"] = "/usr/local/cuda/lib64:" + os.environ.get("LD_LIBRARY_PATH", "")
+import shutil
+import tensorflow as tf
+from tensorflow.keras.utils import image_dataset_from_directory # type: ignore
+from tensorflow.keras import layers, models # type: ignore
+
+# ---- CONFIG ----
+DATA_DIR = "doodle/data/split"
+IMG_SIZE = 28
+BATCH_SIZE = 64
+EPOCHS = 12
+KERAS_OUT = "outputs/doodle/doodle_cnn_model.keras"
+SAVEDMODEL_DIR = "outputs/doodle/saved_model"
+
+# ---- DATA LOAD ----
+def get_datasets():
+    train_ds = image_dataset_from_directory(
+        os.path.join(DATA_DIR, "train"),
+        labels="inferred",
+        label_mode="categorical",
+        color_mode="grayscale",
+        image_size=(IMG_SIZE, IMG_SIZE),
+        batch_size=BATCH_SIZE,
+        shuffle=True,
+        seed=42,
+    )
+    val_ds = image_dataset_from_directory(
+        os.path.join(DATA_DIR, "val"),
+        labels="inferred",
+        label_mode="categorical",
+        color_mode="grayscale",
+        image_size=(IMG_SIZE, IMG_SIZE),
+        batch_size=BATCH_SIZE,
+        shuffle=False,
+    )
+    test_ds = image_dataset_from_directory(
+        os.path.join(DATA_DIR, "test"),
+        labels="inferred",
+        label_mode="categorical",
+        color_mode="grayscale",
+        image_size=(IMG_SIZE, IMG_SIZE),
+        batch_size=BATCH_SIZE,
+        shuffle=False,
+    )
+    class_names = train_ds.class_names
+    return train_ds, val_ds, test_ds, class_names
+
+train_ds, val_ds, test_ds, class_names = get_datasets()
+NUM_CLASSES = len(class_names)
+print(f"Loaded {NUM_CLASSES} classes: {class_names}")
+
+# ---- MODEL ----
+def build_lenet(num_classes):
+    model = models.Sequential([
+        layers.Input(shape=(IMG_SIZE, IMG_SIZE, 1)),
+        layers.Conv2D(32, (3, 3), activation='relu'),
+        layers.MaxPooling2D((2, 2)),
+        layers.Conv2D(64, (3, 3), activation='relu'),
+        layers.MaxPooling2D((2, 2)),
+        layers.Flatten(),
+        layers.Dense(128, activation='relu'),
+        layers.Dense(num_classes, activation='softmax')
+    ])
+    return model
+
+model = build_lenet(NUM_CLASSES)
+model.compile(optimizer='adam',
+              loss='categorical_crossentropy',
+              metrics=['accuracy'])
+model.summary()
+
+# ---- TRAIN ----
+callbacks = [
+    tf.keras.callbacks.EarlyStopping(patience=3, restore_best_weights=True) # type: ignore
+]
+history = model.fit(
+    train_ds,
+    validation_data=val_ds,
+    epochs=EPOCHS,
+    callbacks=callbacks
+)
+
+# ---- EVALUATE ----
+print("Evaluating on test set...")
+test_loss, test_acc = model.evaluate(test_ds)
+print(f"Test accuracy: {test_acc:.4f}")
+
+# ---- SAVE MODEL ----
+os.makedirs(os.path.dirname(KERAS_OUT), exist_ok=True)
+
+# Save as Keras format (optional, good for restoring weights)
+model.save(KERAS_OUT)
+print(f"Model saved to {KERAS_OUT}")
+
+# Export as TensorFlow SavedModel (for TF.js)
+# Remove previous export if it exists to avoid Keras export error
+if os.path.exists(SAVEDMODEL_DIR):
+    shutil.rmtree(SAVEDMODEL_DIR)
+model.export(SAVEDMODEL_DIR)
+print(f"SavedModel exported to {SAVEDMODEL_DIR}")
+
+# ---- Save label mapping ----
+with open(os.path.join(SAVEDMODEL_DIR, "class_names.json"), "w") as f:
+    json.dump(class_names, f)
+print("Class names saved in SavedModel directory.")
+
+# (Optional) Also save class names in Keras model's folder:
+with open(os.path.join(os.path.dirname(KERAS_OUT), "class_names.json"), "w") as f:
+    json.dump(class_names, f)
+print("Class names saved in Keras directory.")
