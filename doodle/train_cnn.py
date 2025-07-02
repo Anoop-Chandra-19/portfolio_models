@@ -53,17 +53,24 @@ NUM_CLASSES = len(class_names)
 print(f"Loaded {NUM_CLASSES} classes: {class_names}")
 
 # ---- MODEL ----
+# Data augmentation for training only
+data_augmentation = tf.keras.Sequential([   # type: ignore
+    layers.RandomRotation(0.08),
+    layers.RandomTranslation(0.08, 0.08),
+    layers.RandomZoom(0.08, 0.08),
+])
+
+def augment(images, labels):
+    return data_augmentation(images, training=True), labels
+
+train_ds_aug = train_ds.map(augment, num_parallel_calls=tf.data.AUTOTUNE)
+train_ds_aug = train_ds_aug.prefetch(tf.data.AUTOTUNE)
+
+# Build model WITHOUT augmentation layers
 def build_improved_cnn(num_classes, img_size=28):
     model = Sequential([
         layers.Input(shape=(img_size, img_size, 1)),
-
-        # Data Augmentation (for grayscale, only small shifts/rotations)
         layers.Rescaling(1./255),
-        layers.RandomRotation(0.08),
-        layers.RandomTranslation(0.08, 0.08),
-        layers.RandomZoom(0.08, 0.08),
-
-        # First block
         layers.Conv2D(32, (3, 3), padding="same", activation="relu"),
         layers.BatchNormalization(),
         layers.Conv2D(32, (3, 3), activation="relu"),
@@ -71,7 +78,6 @@ def build_improved_cnn(num_classes, img_size=28):
         layers.MaxPooling2D((2, 2)),
         layers.Dropout(0.25),
 
-        # Second block
         layers.Conv2D(64, (3, 3), padding="same", activation="relu"),
         layers.BatchNormalization(),
         layers.Conv2D(64, (3, 3), activation="relu"),
@@ -79,7 +85,6 @@ def build_improved_cnn(num_classes, img_size=28):
         layers.MaxPooling2D((2, 2)),
         layers.Dropout(0.25),
 
-        # Flatten and dense layers
         layers.Flatten(),
         layers.Dense(256, activation="relu"),
         layers.BatchNormalization(),
@@ -99,8 +104,9 @@ model.summary()
 callbacks = [
     tf.keras.callbacks.EarlyStopping(patience=3, restore_best_weights=True) # type: ignore
 ]
+# Train using AUGMENTED training data
 history = model.fit(
-    train_ds,
+    train_ds_aug,
     validation_data=val_ds,
     epochs=EPOCHS,
     callbacks=callbacks
