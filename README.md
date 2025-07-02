@@ -16,11 +16,6 @@ This repository contains machine learning models trained and exported for live i
 - **Tech:** Convolutional Neural Network (CNN).
 - **Demo:** Users can draw on a canvas, and the model predicts the doodle category.
 
-### 3. K-Means Clustering Playground
-- **Description:** Interactive clustering demo where users add points to a canvas and see live k-means clustering in action.
-- **Tech:** K-Means clustering algorithm.
-- **Demo:** Users can experiment with clustering by adding/removing points and changing the number of clusters.
-
 ---
 
 ## 📁 Project Structure
@@ -28,7 +23,6 @@ This repository contains machine learning models trained and exported for live i
 ```
 sentiment/         # Sentiment analysis model (TinyBERT)
 doodle/            # Doodle classification model (QuickDraw CNN)
-playground/        # K-means clustering demo
 utils/             # Utility scripts (preprocessing, conversion, etc.)
 outputs/           # Exported models and checkpoints
 ```
@@ -45,16 +39,15 @@ outputs/           # Exported models and checkpoints
 
 2. **Install dependencies:**
    ```bash
-   pip install -r requirements.txt
+   uv sync
    ```
 
 3. **Train models:**
    - Sentiment: See [`sentiment/train_tinybert.py`](sentiment/train_tinybert.py)
    - Doodle: See [`doodle/train_cnn.py`](doodle/train_cnn.py)
-   - K-Means: See [`playground/kmeans_prototype.py`](playground/kmeans_prototype.py)
 
 4. **Export models for web:**
-   - Use scripts in `export_tf.py` or `utils/convert_to_tfjs.py` as needed.
+   - Use script in `utils/convert_to_tfjs.py` as needed.
 
 ---
 
@@ -69,7 +62,6 @@ outputs/           # Exported models and checkpoints
 
 - **Sentiment Analysis:** [87.4]
 - **Doodle Classification:** [Add accuracy here]
-- **K-Means Playground:** Real-time clustering in browser
 
 ---
 
