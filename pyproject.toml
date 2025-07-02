@@ -12,6 +12,7 @@ dependencies = [
     "pandas>=2.3.0",
     "scikit-learn>=1.7.0",
     "tensorflow>=2.19.0",
+    "tensorflowjs>=4.22.0",
     "torch>=2.7.1",
     "tqdm>=4.67.1",
     "transformers[torch]>=4.53.0",
