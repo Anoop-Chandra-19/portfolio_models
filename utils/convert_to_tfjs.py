@@ -1,5 +1,6 @@
 import os
 import subprocess
+import shutil
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "outputs"))
 SUMMARY = []
@@ -20,6 +21,10 @@ def convert_model(model_name, saved_model_dir):
     print(f"🔄 Converting [{model_name}] to tfjs...")
     try:
         subprocess.run(cmd, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        shutil.copyfile(
+        os.path.join(saved_model_dir, "tokenizer_config.json"),
+        os.path.join(tfjs_output_dir, "tokenizer_config.json")
+        )
         print(f"✅ [{model_name}] converted to {tfjs_output_dir}")
         SUMMARY.append((model_name, "Converted", tfjs_output_dir))
     except subprocess.CalledProcessError as e:
