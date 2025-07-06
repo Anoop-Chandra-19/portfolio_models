@@ -3,6 +3,7 @@ import json
 os.environ["PATH"] = "/usr/local/cuda/bin:" + os.environ["PATH"]
 os.environ["LD_LIBRARY_PATH"] = "/usr/local/cuda/lib64:" + os.environ.get("LD_LIBRARY_PATH", "")
 import shutil
+import numpy as np
 import tensorflow as tf
 from tensorflow.keras.utils import image_dataset_from_directory # type: ignore
 from tensorflow.keras import layers, Sequential # type: ignore
@@ -111,6 +112,18 @@ history = model.fit(
     epochs=EPOCHS,
     callbacks=callbacks
 )
+
+test_ds_shuffled = test_ds.shuffle(buffer_size=1000, seed=42)
+for images, labels in test_ds_shuffled.take(1):  # now you get a mixed batch!
+    preds = model.predict(images)
+    true_idx = np.argmax(labels.numpy(), axis=1)
+    pred_idx = np.argmax(preds, axis=1)
+    print("True labels:   ", [class_names[i] for i in true_idx])
+    print("Predicted top: ", [class_names[i] for i in pred_idx])
+    print("Full top 3 for each image:")
+    for i in range(images.shape[0]):
+        top3_idx = np.argsort(preds[i])[::-1][:3]
+        print([class_names[j] for j in top3_idx])
 
 # ---- EVALUATE ----
 print("Evaluating on test set...")

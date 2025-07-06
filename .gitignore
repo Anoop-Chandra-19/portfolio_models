@@ -18,3 +18,6 @@ sentiment/data/train.csv
 sentiment/data/val.csv
 sentiment/data/test.csv
 doodle/data/
+
+# notebooks
+*.ipynb_checkpoints
